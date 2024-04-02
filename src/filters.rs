@@ -1,10 +1,10 @@
-use warp::Filter;
-use crate::routes::home_route;
 use crate::routes::demo_route;
+use crate::routes::home_route;
+use crate::routes::sue_route;
+use warp::Filter;
 
-                       
-pub fn all_routes() -> impl warp::Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone 
-{
+pub fn all_routes(
+) -> impl warp::Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
     let favicon = warp::get()
         .and(warp::path("favicon.ico"))
         .and(warp::path::end())
@@ -16,10 +16,11 @@ pub fn all_routes() -> impl warp::Filter<Extract = (impl warp::Reply,), Error = 
     let dir = warp::path("static").and(warp::fs::dir("./static"));
     let home = home_route::index();
 
-
     let hello = warp::path!("hello" / String).map(|name| format!("你好，{}!", name));
-    let demo=demo_route::index();
+    let demo = demo_route::index();
 
-    let routes=home.or(favicon).or(well).or(dir).or(hello).or(demo);
+    let sue = sue_route::index();
+
+    let routes = home.or(favicon).or(well).or(dir).or(hello).or(demo).or(sue);
     routes
 }

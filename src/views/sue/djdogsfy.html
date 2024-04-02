@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <title>{$info.post_title}</title>
+    <meta name="keywords" content="<if condition="$info.post_keywords">{$info.post_keywords}<else/>{$site_info.site_seo_keywords|default=''}</if>"/>
+    <meta name="description" content="<if condition="$info.post_excerpt">{$info.post_excerpt|strip_tags}<else/>{$site_info.site_seo_description|default=''}</if>">
+    <include file="public@head"/>
+</head>
+
+<body>
+<include file="public@nav"/>
+<div class="w1200 falv-main">
+    <div class="row">
+        <div class="col-xs-4 col-md-8">
+
+            <div class="panel panel-default article-content">
+                <div class="panel-heading">
+                    <ol class="breadcrumb">
+                        <li><a href="/">首页</a></li>
+                        <foreach name="loca" item="vo">
+                            <li><a href="/{$vo['typedir']}">{$vo['name']}</a></li>
+                        </foreach>
+                        <li><a href="/{$info.typedir}">{$info.cate_name}</a></li>
+                    </ol>
+                </div>
+                <div class="panel-body">
+                    <div class="article-metas">
+                        <h1 class="metas-title fs-3">{$info.post_title}</h1>
+ 
+                        <!--div class="metas-body">
+                            <span class="comment-num">
+                                <i class="fa fa-clock-o"></i> {:date('Y-m-d',$info.create_time)}
+                            </span>
+                            <span class="views-num">
+                                <i class="fa fa-eye"></i> {$info.post_hits}
+                            </span>
+                        </div-->
+
+                    </div>
+
+                    <div class="article-text">
+                        <p>{$info.post_content|htmlspecialchars_decode}</p>
+                    </div>
+
+                    <div class="entry-meta">
+                        <ul>
+                            <li>本文分类：<a href="/{$info.typedir}">{$info.cate_name}</a></li>
+                            <li>本文标签：
+                                <foreach name="tag_list" item="vo">
+                                    <a href="/portal/news/details.html?id={$info.id}" class="tag"> <span>{$vo.name}</span></a>
+                                </foreach>
+                            </li>
+                            <li>浏览次数：<span>{$info.post_hits}</span> 次浏览</li>
+                            <li>发布日期：{:date('Y-m-d',$info.create_time)}</li>
+                        </ul>
+
+                        <ul class="article-prevnext">
+                            <li>
+                                <span>上一篇 &gt;</span>
+                                <if condition="$prev_article neq ''">
+                                    <a href="/{$info.typedir}/{$prev_article.id}.html">{$prev_article.post_title}</a>
+                                    <else/>
+                                    无
+                                </if>
+                            </li>
+                            <li>
+                                <span>下一篇 &gt;</span>
+                                <if condition="$next_article neq ''">
+                                    <a href="/{$info.typedir}/{$next_article.id}.html">{$next_article.post_title}</a>
+                                    <else/>
+                                    无
+                                </if>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-xs-12 col-md-4">
+
+            <div class="panel panel-default hot-tags">
+                <div class="panel-heading">
+                    <h3 class="panel-title">栏目列表</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="tags">
+                        <foreach name="all_category" item="vo">
+                            <a href="/{$vo.typedir}" class="tag"> <span>{$vo.name}</span></a>
+                        </foreach>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default hot-article">
+                <div class="panel-heading">
+                    <h3 class="panel-title">推荐内容</h3>
+                </div>
+                <div class="panel-body">
+                    <foreach name="recommend_list" key="key" item="vo">
+                        <div class="media media-number">
+                            <div class="media-left">
+                                <span class="num tag">{$key+1}</span>
+                            </div>
+                            <div class="media-body">
+                                <a class="link-dark" href="/{$vo.typedir}/{$vo.id}.html" title="{$vo.post_title}">{$vo.post_title}</a>
+                            </div>
+                        </div>
+                    </foreach>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<include file="public@foot"/>
+</body>
+</html>
