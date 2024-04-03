@@ -5,8 +5,14 @@ mod common;
 mod filters;
 mod format_logger;
 mod handlers;
+mod models;
 mod routes;
+mod schema;
 mod template;
+mod db;
+
+#[macro_use]
+extern crate diesel;
 
 #[tokio::main]
 async fn main() {

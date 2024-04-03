@@ -41,10 +41,11 @@ mysql数据库：
 DATABASE_URL=mysql://[user[:password]@]host/database_name
 
 在Cargo.toml中添加依赖项：
-diesel = { version="1.4.6",features=["extras","postgres","r2d2"] }
+diesel = { version="2.1.5",features=["extras","postgres","r2d2"] }
 dotenv = "0.15.0"
 
-运行"diesel setup"命令生成"migrations"目录与"diesel.toml"文件并且会创建数据库：
+运行"diesel setup"命令生成"migrations"目录与"diesel.toml"文件并且会创建数据库，
+并且在数据库里生成一张“__diesel_schema_migrations”的表，我们不用理会这张表，它主要用来记录diesel的操作的迁表操作：
 elapse@elapse-PC:/luck/Language/Rust/warp-wiki$ diesel setup
 Creating migrations directory at: /luck/Language/Rust/warp-wiki/migrations
 Creating database: warpwiki
@@ -62,7 +63,21 @@ elapse@elapse-PC:/luck/Language/Rust/warp-wiki$
 elapse@elapse-PC:/luck/Language/Rust/warp-wiki$ diesel migration run
 Running migration 2021-05-13-071702_admins
 elapse@elapse-PC:/luck/Language/Rust/warp-wiki$
-命令执行完后，会在数据库中生成表，同时在项目中生成src/schema.rs文件。
+命令执行完后，会在数据库中生成表，同时在项目中生成src/schema.rs文件。 然后在“main.rs”里加入如下行
+mod schema;
+
+#[macro_use]
+extern crate diesel;
+
+以便后面的代码能使用，mod是加入schema模块，后面两行是展开diesel宏.这样子，在代码里就可以使用数据库了。
+再在src目录下新建“models”文件夹，并在里面新增mod.rs文件，“main.rs”再加入“mod models;”。
+以后就把操作数据库的代码放在该文件夹里。
+
+注意使用MYSQL与postgres时，在Cargo.toml中添加依赖项分别不同，请注意对比如下：
+# 这条是用postgres数据库
+diesel = { version="2.1.5",features=["extras","postgres","r2d2","with-deprecated","numeric","chrono"] }
+# 这条是用mysql数据库
+diesel = { version="2.1.5",features=["extras","mysql","r2d2","with-deprecated","numeric","chrono"] }
 
 
 迁移时执行：diesel setup

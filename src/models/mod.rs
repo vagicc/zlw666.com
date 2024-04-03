@@ -1,0 +1,1 @@
+pub mod portal_post_model;
