@@ -23,20 +23,26 @@ pub struct CozePostData {
 }
 
 //官方文档：https://www.coze.com/open/docs/chat?_lang=zh
-pub async fn coze(say: String, user: String, config: &CozeConfig) {
+pub async fn coze(
+    say: String,
+    user: String,
+    config: &CozeConfig,
+) -> crate::json_value::coze_response_json::CozeResponse {
     // 创建一个 HeaderMap 来存储请求头
     let mut headers = reqwest::header::HeaderMap::new();
     headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
     headers.insert(ACCEPT, HeaderValue::from_static("*/*"));
     headers.insert(HOST, HeaderValue::from_static("api.coze.com"));
     headers.insert(CONNECTION, HeaderValue::from_static("keep-alive"));
+    let bearer = format!("Bearer {}", config.api_key);
+    headers.insert(AUTHORIZATION, bearer.parse().unwrap());
     //这个还要写活
-    headers.insert(
-        AUTHORIZATION,
-        HeaderValue::from_static(
-            "Bearer pat_1ACJqMzr4mMFGNJ5Mdlq5smyggnnSgp5x8LCqaYq4NbGCvHnO0ABrsMXZa3UQatY",
-        ),
-    );
+    // headers.insert(
+    //     AUTHORIZATION,
+    //     HeaderValue::from_static(
+    //         "Bearer pat_1ACJqMzr4mMFGNJ5Mdlq5smyggnnSgp5x8LCqaYq4NbGCvHnO0ABrsMXZa3UQatY",
+    //     ),
+    // );
 
     // post: &CozePostData
     let post = CozePostData {
@@ -70,7 +76,8 @@ pub async fn coze(say: String, user: String, config: &CozeConfig) {
         .json::<coze_response_json::CozeResponse>()
         .await
         .unwrap();
-    log::info!("接收到的返回消息：{:#?}", messages);
+    log::debug!("接收到的返回消息：{:#?}", messages);
+    messages
 }
 
 //这里还要有其它的参数
