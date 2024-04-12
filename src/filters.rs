@@ -1,3 +1,4 @@
+use crate::routes::coze_route;
 use crate::routes::demo_route;
 use crate::routes::home_route;
 use crate::routes::sue_route;
@@ -20,7 +21,15 @@ pub fn all_routes(
     let demo = demo_route::index();
 
     let sue = sue_route::index();
+    let coze = coze_route::index();
 
-    let routes = home.or(favicon).or(well).or(dir).or(hello).or(demo).or(sue);
+    let routes = home
+        .or(favicon)
+        .or(well)
+        .or(dir)
+        .or(hello)
+        .or(demo)
+        .or(sue)
+        .or(coze);
     routes
 }

@@ -2,14 +2,16 @@ use crate::common::get_env;
 
 // 每个文件要用mod引入才能使用
 mod common;
+mod db;
 mod filters;
 mod format_logger;
 mod handlers;
+mod json_value;
 mod models;
+mod reptile;
 mod routes;
 mod schema;
 mod template;
-mod db;
 
 #[macro_use]
 extern crate diesel;

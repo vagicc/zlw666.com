@@ -2,7 +2,10 @@
 百度指数：https://index.baidu.com/v2/index.html#/
 百度搜索资源平台：https://ziyuan.baidu.com/
 必应站长工具：https://www.bing.com/webmasters/  （有关键字研究）
+谷歌SEO：https://developers.google.cn/search/docs/fundamentals/seo-starter-guide?hl=zh-cn
 
+可以在“百度资源”的“流量与关键词”中查看搜索展示及点击量
+百度统计
 
 百度热搜: https://top.baidu.com/board
 今日热榜：https://tophub.today

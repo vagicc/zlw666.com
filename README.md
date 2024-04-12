@@ -8,6 +8,11 @@ SEO百度资源：https://ziyuan.baidu.com/
 
 运行项目前，请先把“env”文件改为“.env”并查看里面的配置对应本机配置
 
+linux版本推荐：https://parrotsec.org/
+中文文档：https://parrotsec-cn.org/t/topic/30
+Parrot（前身为 Parrot Security OS）是一个基于 Debian 的、面向安全的 Linux 发行版，具有一系列专为渗透测试、计算机取证、逆向工程、黑客攻击、隐私、匿名和加密而设计的实用程序。 1月24日，Parrot 6.0 正式发布。
+Parrot OS 包括用于 IT 安全和数字取证操作的完整便携式工具库。 它还包括开发自己的程序或在上网时保护用户隐私所需的一切。Parrot 提供三个主要版本：安全版、家庭版和架构师版，甚至可以作为虚拟机（Virtual Box、Parallels 和 VMware）在 Raspberry Pi 和 Docker 上使用。
+
 机场提供的SS/SSR/V2ray/Trojan 协议  跟VPN不大相同，
 机场大多没有自己开发的客户端而是采用第三方客户端，比如流行的 Clash 客户端（Windows、Mac、Android、iOS），Shadowrocket 客户端（iOS），Quantumult X （iOS）。iOS 端的 Clash 名字跟其他平台有所不同，名叫 Stash。
 
