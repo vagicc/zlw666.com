@@ -1,6 +1,21 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
+    batch_batchtitle (id) {
+        id -> Bigint,
+        #[max_length = 255]
+        title -> Varchar,
+        content -> Nullable<Longtext>,
+        is_done -> Bool,
+        created_at -> Datetime,
+        generated_at -> Nullable<Datetime>,
+        #[max_length = 300]
+        description -> Nullable<Varchar>,
+        is_published -> Bool,
+    }
+}
+
+diesel::table! {
     cmf_portal_category (id) {
         id -> Unsigned<Bigint>,
         parent_id -> Unsigned<Bigint>,
@@ -81,8 +96,25 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    coze_batch_batchtitle (id) {
+        id -> Bigint,
+        #[max_length = 255]
+        title -> Varchar,
+        content -> Nullable<Longtext>,
+        is_done -> Nullable<Bool>,
+        created_at -> Datetime,
+        generated_at -> Nullable<Datetime>,
+        #[max_length = 300]
+        description -> Nullable<Varchar>,
+        is_published -> Nullable<Bool>,
+    }
+}
+
 diesel::allow_tables_to_appear_in_same_query!(
+    batch_batchtitle,
     cmf_portal_category,
     cmf_portal_post,
     cmf_portal_tag_post,
+    coze_batch_batchtitle,
 );

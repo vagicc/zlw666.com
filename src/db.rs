@@ -61,7 +61,7 @@ pub fn _pg_pool() -> Pool<ConnectionManager<MysqlConnection>> {
     pool
 }
 
-pub fn _my_pg_connection() -> MysqlConnection {
+pub fn my_connection() -> MysqlConnection {
     let database_url = get_env("DATABASE_URL");
     let conn = MysqlConnection::establish(&database_url).expect("kdka");
     conn
