@@ -52,6 +52,9 @@ env_logger = "0.10.0"
 log = "0.4.17"
 # pretty_env_logger = "0.4.0"  #这个没有使用到了
 
+# 随机库
+rand = "0.8.5"
+
 #爬虫
 reqwest = { version="0.12.3",features=["socks","json","blocking","cookies","gzip","brotli","multipart","deflate"]}
 select = "0.6.0"

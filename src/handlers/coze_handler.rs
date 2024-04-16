@@ -1,7 +1,23 @@
+use std::fmt::format;
+
 use crate::models::coze_batch_batchtitle_m;
 use crate::reptile;
 use handlebars::{to_json, Handlebars};
 use warp::{Rejection, Reply};
+
+pub async fn test_rand_image() -> Result<impl Reply, Rejection> {
+    let (one, two) = rand_img();
+
+    let new = format!(
+        "<img src=\"{}\" alt=\"A beautiful red rose\" title=\"A beautiful red rose\">
+        <br><hr>
+        <img src=\"{}\" alt=\"A beautiful red rose\" title=\"A beautiful red rose\">",
+        one, two
+    );
+
+    let html = "随机取一个文件夹里的图片";
+    Ok(warp::reply::html(new)) //直接返回html
+}
 
 pub async fn title(title: String) -> Result<impl Reply, Rejection> {
     log::info!("要生成的文章标题：{}", title);
@@ -39,8 +55,8 @@ pub async fn title(title: String) -> Result<impl Reply, Rejection> {
     let now_date_time = crate::common::now_naive_date_time();
 
     let new_data = coze_batch_batchtitle_m::NewCozeBatchBatchtitle {
-        title: title,
-        content: Some(content),
+        title: title.clone(),
+        content: Some(content.clone()),
         is_done: Some(true),
         created_at: created_time,
         generated_at: Some(now_date_time),
@@ -53,7 +69,15 @@ pub async fn title(title: String) -> Result<impl Reply, Rejection> {
 
     // let mut data = Map::new();
     // let html = to_html_base("home.html", data);
-    let html = "这里是请求<扣子：www.coze.com >";
+    let html = format!(
+        "这里是请求<扣子：www.coze.com >
+    <br><Hr>
+    标题：{}
+    <br><Hr>
+    {}
+    ",
+        title, content
+    );
     Ok(warp::reply::html(html)) //直接返回html
                                 // Err(warp::reject::not_found())   //错误的返回
 }
@@ -78,21 +102,44 @@ async fn coze_ai_write_article(say: String) -> Option<(String, String)> {
         log::error!("处理文章出错。原始分割符📚变成了n📘");
         title_and_content = messages.content.split("📘").collect();
         if title_and_content.len() != 2 {
-            log::error!("原始分割符📚和📘都不对真是的");
+            log::error!("原始分割符📚和📘都不对真是的,那就是AI没有去生成，而是反问了");
         }
     }
     //去除标题前后的空格
-    let mut title_option = title_and_content[0].strip_prefix("📝 标题:");
-    if title_option.is_none() {
-        title_option = title_and_content[0].strip_prefix("📝标题");
-        if title_option.is_none() {
-            title_option = title_and_content[0].strip_prefix("📝 标题：");
+    let title_temp = title_and_content[0]
+        .replace("\n\n", "")
+        .replace(":", "")
+        .replace("：", "");
+    let mut title_option = title_temp.strip_prefix("📝 标题");
+    // let mut title_option = title_and_content[0].clone().strip_prefix("📝 标题:");
+
+    if title_option.is_none() && !title_and_content[0].is_empty() {
+        let mut title_array: Vec<&str> = title_and_content[0].split("📝").collect();
+        let k = title_array.pop().expect("vector empty!");
+        let k = k.replace("\n\n", "").replace(":", "").replace("：", "");
+        let k = k.trim().strip_prefix("标题");
+        // title_option = k;
+        println!("{:?}", k);
+        let k=format!("{:?}", k);
+        let k=&k.as_str();
+        // title_option=Some(&*k);  //出错
+      
+        let tem = title_array[1]
+            .replace("\n\n", "")
+            .replace(":", "")
+            .replace("：", "");
+        let tem = tem.trim().strip_prefix("标题");
+        if tem.is_some() {
+            let k = tem.unwrap();
+            // title_option=Some(k)  //出错
         }
+        // title_option = tem;
     }
     let title = title_option
         .expect("处理文章标题时出错")
         .trim_start() //去掉前面空格
-        .trim_end();
+        .trim_end()
+        .trim_matches('\"'); //去掉前后的"
 
     // let title = title_and_content[0]
     //     .strip_prefix("📝 标题:")
@@ -116,8 +163,86 @@ async fn coze_ai_write_article(say: String) -> Option<(String, String)> {
     log::info!("未处理的文章内容{:#?}", content);
 
     let temp: Vec<&str> = content.split("\n\n").collect();
-    let html_content = format!("<p>{}</p>", temp.join("</p><p>"));
+
+    // 处理在文章头部与尾部添加固定的随机图片
+    let (one, two) = rand_img();
+    let front_img = format!("<img src=\"{}\" alt=\"{}\" title=\"{1}\">", one, title);
+    let mut back_img = "".to_string();
+    if one != two {
+        back_img = format!("<img src=\"{}\" alt=\"{}\" title=\"{1}\">", two, title);
+    }
+
+    let html_content = format!(
+        "
+        <p>{}</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;{}</p>
+        <p>{}</p>
+        ",
+        front_img,
+        temp.join("</p><p>&nbsp;&nbsp;&nbsp;&nbsp;"),
+        back_img
+    );
     log::info!("处理后的内容内容：{}", html_content);
 
     Some((title.to_string(), html_content))
+}
+
+//返回两张随机图片
+fn rand_img() -> (String, String) {
+    let relative_path = "uploads/allimg"; //相对路径：relative path
+    let absolute_path = "/home/luck/Code/PHP/59fayiweb"; //网站根路径
+    let url = "https://59fayi.up";
+    //                       /home/luck/Code/PHP/59fayiweb/public/uploads/allimg/4917.jpg
+    let p = format!("{}/public/{}", absolute_path, relative_path);
+    //$directory = '/www/wwwroot/59fayiweb/public/uploads/allimg/*';
+    let dir = std::path::Path::new(&p); //图片路径
+
+    // 获取文件夹下所有的文件
+    // let files: Vec<_> = std::fs::read_dir(dir)
+    //     .unwrap()
+    //     .map(|res| res.unwrap().path())
+    //     .collect();
+    let files: Vec<_> = std::fs::read_dir(dir)
+        .unwrap()
+        .filter_map(|entry| {
+            let entry = entry.unwrap();
+            let path = entry.path();
+            if path.is_file()
+                && path
+                    .extension()
+                    .and_then(|s| s.to_str())
+                    .map_or(false, |ext| {
+                        ext.eq_ignore_ascii_case("jpg")
+                            || ext.eq_ignore_ascii_case("png")
+                            || ext.eq_ignore_ascii_case("jpeg")
+                    })
+            {
+                Some(path)
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    // 使用随机数生成器选择一个文件
+    use rand::seq::SliceRandom;
+    let mut rng = rand::thread_rng();
+    // let mut two = rand::thread_rng();
+
+    let selected_file = files
+        .choose(&mut rng)
+        .expect("取随机图片出错1")
+        .to_str()
+        .unwrap();
+    let selected_two = files
+        .choose(&mut rng)
+        .expect("取随机图片出错2")
+        .to_str()
+        .unwrap();
+    // let file_name = format!("随机的图片：{:?}", selected_file);
+    let repath = format!("{}/public", absolute_path);
+    let rand_img = selected_file.replace(&repath, url);
+    let two_img = selected_two.replace(&repath, url);
+
+    (rand_img, two_img)
 }
