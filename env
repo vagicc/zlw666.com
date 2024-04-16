@@ -18,3 +18,6 @@ BASE_URL=//127.0.0.1:5898/
 
 # 日志记录模式：Off,Error,Warn,Info,Debug,Trace
 RUST_LOG=Off
+
+# 代码所在绝对路径
+path=/home/luck/Code/PHP/59fayiweb

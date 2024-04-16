@@ -189,9 +189,12 @@ async fn coze_ai_write_article(say: String) -> Option<(String, String)> {
 
 //返回两张随机图片
 fn rand_img() -> (String, String) {
+    use crate::common::get_env;
+    let absolute_path=get_env("path");
     let relative_path = "uploads/allimg"; //相对路径：relative path
-    let absolute_path = "/home/luck/Code/PHP/59fayiweb"; //网站根路径
-    let url = "https://59fayi.up";
+    // let absolute_path = "/home/luck/Code/PHP/59fayiweb"; //网站根路径
+    let url=format!("https:{}",get_env("BASE_URL"));
+    // let url = "https://59fayi.up";
     //                       /home/luck/Code/PHP/59fayiweb/public/uploads/allimg/4917.jpg
     let p = format!("{}/public/{}", absolute_path, relative_path);
     //$directory = '/www/wwwroot/59fayiweb/public/uploads/allimg/*';
@@ -240,9 +243,9 @@ fn rand_img() -> (String, String) {
         .to_str()
         .unwrap();
     // let file_name = format!("随机的图片：{:?}", selected_file);
-    let repath = format!("{}/public", absolute_path);
-    let rand_img = selected_file.replace(&repath, url);
-    let two_img = selected_two.replace(&repath, url);
+    let repath = format!("{}/public/", absolute_path);
+    let rand_img = selected_file.replace(&repath, &url);
+    let two_img = selected_two.replace(&repath, &url);
 
     (rand_img, two_img)
 }
