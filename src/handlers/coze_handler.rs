@@ -110,42 +110,38 @@ async fn coze_ai_write_article(say: String) -> Option<(String, String)> {
         .replace("\n\n", "")
         .replace(":", "")
         .replace("：", "");
-    let mut title_option = title_temp.strip_prefix("📝 标题");
-    // let mut title_option = title_and_content[0].clone().strip_prefix("📝 标题:");
 
-    if title_option.is_none() && !title_and_content[0].is_empty() {
-        let mut title_array: Vec<&str> = title_and_content[0].split("📝").collect();
-        let k = title_array.pop().expect("vector empty!");
-        let k = k.replace("\n\n", "").replace(":", "").replace("：", "");
-        let k = k.trim().strip_prefix("标题");
-        // title_option = k;
-        println!("{:?}", k);
-        let k=format!("{:?}", k);
-        let k=&k.as_str();
-        // title_option=Some(&*k);  //出错
-      
-        let tem = title_array[1]
-            .replace("\n\n", "")
-            .replace(":", "")
-            .replace("：", "");
-        let tem = tem.trim().strip_prefix("标题");
-        if tem.is_some() {
-            let k = tem.unwrap();
-            // title_option=Some(k)  //出错
+    let mut original_title = String::new();
+    let title_option = title_temp.strip_prefix("📝 标题");
+
+    match title_option {
+        Some(o_title) => {
+            // let k = title_option.expect("处理文章标题时出错");
+            original_title = o_title
+                .replace(":", "")
+                .replace("：", "")
+                .to_string();
         }
-        // title_option = tem;
+        None => {
+            // 处理返回AI多余的话
+            let mut title_array: Vec<String> = title_and_content[0]
+                .split("📝")
+                .map(|k| k.to_string())
+                .collect();
+            let title_temp = title_array.pop().expect("最出最后数组为空，没有文章标题!");
+            let title_prefix = title_temp
+                .replace("\n\n", "")
+                .replace(":", "")
+                .replace("：", "");
+
+            original_title = format!("{:?}", title_prefix.trim().strip_prefix("标题"));
+        }
     }
-    let title = title_option
-        .expect("处理文章标题时出错")
+
+    let title = original_title
         .trim_start() //去掉前面空格
         .trim_end()
         .trim_matches('\"'); //去掉前后的"
-
-    // let title = title_and_content[0]
-    //     .strip_prefix("📝 标题:")
-    //     .expect("处理文章标题时出错")
-    //     .trim_start() //去掉前面空格
-    //     .trim_end();
 
     let mut content_option = title_and_content[1].trim_start().strip_prefix("内容:");
     if content_option.is_none() {
@@ -190,10 +186,10 @@ async fn coze_ai_write_article(say: String) -> Option<(String, String)> {
 //返回两张随机图片
 fn rand_img() -> (String, String) {
     use crate::common::get_env;
-    let absolute_path=get_env("path");
+    let absolute_path = get_env("path");
     let relative_path = "uploads/allimg"; //相对路径：relative path
-    // let absolute_path = "/home/luck/Code/PHP/59fayiweb"; //网站根路径
-    let url=format!("https:{}",get_env("BASE_URL"));
+                                          // let absolute_path = "/home/luck/Code/PHP/59fayiweb"; //网站根路径
+    let url = format!("https:{}", get_env("BASE_URL"));
     // let url = "https://59fayi.up";
     //                       /home/luck/Code/PHP/59fayiweb/public/uploads/allimg/4917.jpg
     let p = format!("{}/public/{}", absolute_path, relative_path);
