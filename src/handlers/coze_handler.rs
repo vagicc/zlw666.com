@@ -134,7 +134,27 @@ async fn coze_ai_write_article(say: String) -> Option<(String, String)> {
     //这个配置文件还要分割出去
     let coze_config = get_coze_config();
 
+    // let response = reptile::coze_test(say.clone(), "123".to_string(), &coze_config).await;
+
     let response = reptile::coze(say, "123".to_string(), &coze_config).await;
+    let follow = true;
+    if follow {
+        for follow_data in response.messages.iter() {
+            if !follow_data.r#type.eq("follow_up") {
+                continue;
+            }
+            let new_data = coze_batch_batchtitle_m::NewCozeBatchBatchtitle {
+                title: follow_data.content.clone(),
+                content: None,
+                is_done: Some(false),
+                created_at: crate::common::now_naive_date_time(),
+                generated_at: None,
+                description: None,
+                is_published: None,
+            };
+            new_data.insert();
+        }
+    }
     // println!("{:#?}", response);
     let messages = response.messages.first().expect("返回来消息体不对");
     let mut title_and_content: Vec<&str> = messages.content.split("📚").collect();

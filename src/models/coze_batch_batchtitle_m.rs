@@ -131,7 +131,7 @@ pub fn no_done_list(
         offset = ((page.unwrap() as i64) - 1) * limit;
     }
 
-    let query_count = coze_batch_batchtitle.filter(is_done.eq(false)).count();
+    let query_count = coze_batch_batchtitle.filter(is_done.eq(Some(false))).count();
     log::error!(
         "分页数量查询SQL：{:#?}",
         diesel::debug_query::<diesel::mysql::Mysql, _>(&query_count).to_string()
@@ -149,7 +149,7 @@ pub fn no_done_list(
     }
 
     let query = coze_batch_batchtitle
-        .filter(is_done.eq(false))
+        .filter(is_done.eq(Some(false)))
         .order_by(id.desc())
         .limit(limit)
         .offset(offset);

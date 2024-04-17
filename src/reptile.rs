@@ -75,11 +75,73 @@ pub async fn coze(
     let messages = response
         .json::<coze_response_json::CozeResponse>()
         .await
-        .unwrap();
+        .expect("接口返回来数据转为JSON出错");
+
     log::debug!("接收到的返回消息：{:#?}", messages);
     messages
 }
 
+
+//官方文档：https://www.coze.com/open/docs/chat?_lang=zh
+pub async fn coze_test(
+    say: String,
+    user: String,
+    config: &CozeConfig,
+)  {
+    // 创建一个 HeaderMap 来存储请求头
+    let mut headers = reqwest::header::HeaderMap::new();
+    headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+    headers.insert(ACCEPT, HeaderValue::from_static("*/*"));
+    headers.insert(HOST, HeaderValue::from_static("api.coze.com"));
+    headers.insert(CONNECTION, HeaderValue::from_static("keep-alive"));
+    let bearer = format!("Bearer {}", config.api_key);
+    headers.insert(AUTHORIZATION, bearer.parse().unwrap());
+    //这个还要写活
+    // headers.insert(
+    //     AUTHORIZATION,
+    //     HeaderValue::from_static(
+    //         "Bearer pat_1ACJqMzr4mMFGNJ5Mdlq5smyggnnSgp5x8LCqaYq4NbGCvHnO0ABrsMXZa3UQatY",
+    //     ),
+    // );
+
+    // post: &CozePostData
+    let post = CozePostData {
+        conversation_id: config.conversation_id.clone(), //标识对话发生在哪一次会话中
+        bot_id: config.bot_id.clone(),                   //要进行会话聊天的 Bot ID
+        user: user,            //标识当前与 Bot 交互的用户，使用方自行维护此字段
+        query: say,            //用户输入内容
+        stream: config.stream, //是否启用流式返回
+    };
+    let body = serde_json::to_string(&post).unwrap();
+
+    let client = reqwest::Client::new();
+    let response = client
+        .post(config.api_url.clone())
+        .headers(headers)
+        .body(body)
+        .send()
+        .await
+        .expect("请求coze.com接口出错");
+
+    // 检查响应
+    if !response.status().is_success() {
+        log::error!("Request failed with status: {:#?}", response.status());
+    }
+    println!("成功");
+    // println!("{}", response.text().await.unwrap());
+    println!("请求完成");
+
+    use crate::json_value::coze_response_json;
+    let messages = response
+        .json::<coze_response_json::CozeStatus>()
+        .await
+        .expect("接口返回来数据转为JSON出错");
+    println!("成功");
+    println!("{:#?}",messages);
+    println!("请求完成");
+
+   
+}
 //这里还要有其它的参数
 pub async fn _coze_old(say: &str, stream: bool, config: CozeConfig) {
     let client = reqwest::Client::new();

@@ -2,6 +2,13 @@ use serde::Deserialize;
 // use serde_json::{Map, Value};
 
 #[derive(Deserialize, Debug, Clone)]
+pub struct CozeStatus {
+    pub code: i64, //状态码。 0 代码调用成功。
+    pub msg: String, //状态信息
+    pub messages:Option<Vec<Messag>>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
 pub struct CozeResponse {
     pub messages: Vec<Messag>,
 }

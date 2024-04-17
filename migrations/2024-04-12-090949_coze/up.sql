@@ -22,6 +22,6 @@ CREATE TABLE `coze_batch_batchtitle` (
   `description` varchar(300) DEFAULT NULL COMMENT '文章描述',
   `is_published` tinyint(1) DEFAULT 0 COMMENT '是否已发布：默认0未发布  1为已发布',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `title` (`title`)
-  KEY `is_done` (`is_done`),
+  UNIQUE KEY `title` (`title`),
+  KEY `is_done` (`is_done`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Coze生成文章的表';
