@@ -4,6 +4,7 @@ use crate::schema::coze_batch_batchtitle::dsl::*;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
+use warp::filters::query;
 
 /* 表查询插入结构体合二为一(Insertable：插入，Queryable：查询) */
 #[derive(Debug, Clone, Queryable, Deserialize, Serialize)]
@@ -109,4 +110,60 @@ pub fn find_title(article_title: String) -> Option<CozeBatchBatchtitle> {
             None
         }
     }
+}
+
+/// 取得列表数据
+/// page: Option<u32>  第几页
+/// per: Option<u32>   每页多少条数据,默认为50
+/// 返回（总条数：i64,数据数组，分页html)
+pub fn no_done_list(
+    page: Option<u32>,
+    per: Option<u32>,
+) -> (i64, Vec<CozeBatchBatchtitle>, String) {
+    let mut limit: i64 = 50; //每页取几条数据
+    let mut offset: i64 = 0; //从第0条开始
+
+    if !per.is_none() {
+        limit = per.unwrap() as i64; //u32是无符号整数,也就是大于0
+    }
+
+    if !page.is_none() && page.unwrap() > 1 {
+        offset = ((page.unwrap() as i64) - 1) * limit;
+    }
+
+    let query_count = coze_batch_batchtitle.filter(is_done.eq(false)).count();
+    log::error!(
+        "分页数量查询SQL：{:#?}",
+        diesel::debug_query::<diesel::mysql::Mysql, _>(&query_count).to_string()
+    );
+
+    let mut conn = get_connection();
+    let count: i64 = query_count
+        .get_result(&mut conn)
+        .expect("coze_batch_batchtitle分页数量查询出错"); //查询总条数
+
+    let mut pages = String::new();
+    let data_null: Vec<CozeBatchBatchtitle> = Vec::new();
+    if count <= 0 {
+        return (count, data_null, pages);
+    }
+
+    let query = coze_batch_batchtitle
+        .filter(is_done.eq(false))
+        .order_by(id.desc())
+        .limit(limit)
+        .offset(offset);
+    log::error!(
+        "分页查询SQL：{:#?}",
+        diesel::debug_query::<diesel::mysql::Mysql, _>(&query).to_string()
+    );
+
+    let list = query
+        .get_results::<CozeBatchBatchtitle>(&mut conn)
+        .unwrap_or(data_null);
+
+    println!("{:?}", list);
+
+    // pages="";  这里做分页HTML
+    (count, list, pages)
 }

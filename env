@@ -21,3 +21,7 @@ RUST_LOG=Off
 
 # 代码所在绝对路径
 path=/home/luck/Code/PHP/59fayiweb
+
+# Coze扣子AI配置
+coze_api_key=sss
+coze_bot_id=7356134116951867400

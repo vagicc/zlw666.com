@@ -19,6 +19,41 @@ pub async fn test_rand_image() -> Result<impl Reply, Rejection> {
     Ok(warp::reply::html(new)) //直接返回html
 }
 
+pub async fn backstage() -> Result<impl Reply, Rejection> {
+    let (_, list, _) = coze_batch_batchtitle_m::no_done_list(None, None);
+
+    if list.is_empty() {
+        log::warn!("没有未生成的关键字");
+    }
+
+    for coze_data in list.iter() {
+        // 请求接口，生成文章，再更改数据保存文章
+        let say = format!("生成“{}”文章", coze_data.title);
+        let mut new_article: Option<(String, String)> = None;
+        new_article = coze_ai_write_article(say.clone()).await;
+        let (title, content) = new_article.unwrap();
+        let now_date_time = crate::common::now_naive_date_time();
+        let description = format!(
+            "扣子（coze.com）AI作者根据关键词《{}》写的文章",
+            coze_data.title
+        );
+        log::debug!("{:?}", description);
+        let new_data = coze_batch_batchtitle_m::NewCozeBatchBatchtitle {
+            title: title.clone(),
+            content: Some(content.clone()),
+            is_done: Some(true),
+            created_at: coze_data.created_at,
+            generated_at: Some(now_date_time),
+            description: Some(description),
+            is_published: Some(false),
+        };
+        coze_batch_batchtitle_m::modify(coze_data.id, &new_data);
+    }
+
+    let html = "后台把关键都发送去生成文章";
+    Ok(warp::reply::html(html)) //直接返回html
+}
+
 pub async fn title(title: String) -> Result<impl Reply, Rejection> {
     log::info!("要生成的文章标题：{}", title);
     //解码URL的中文
@@ -82,15 +117,22 @@ pub async fn title(title: String) -> Result<impl Reply, Rejection> {
                                 // Err(warp::reject::not_found())   //错误的返回
 }
 
+fn get_coze_config() -> reptile::CozeConfig {
+    use crate::common::get_env;
+    let api_key = get_env("coze_api_key");
+    let bot_id = get_env("coze_bot_id");
+    reptile::CozeConfig {
+        api_url: "https://api.coze.com/open_api/v2/chat".to_string(),
+        api_key: api_key,
+        conversation_id: "123".to_string(), //标识对话发生在哪一次会话中,示例中默认为123
+        bot_id: bot_id,                     //机器模型的ID：7356134116951867400
+        stream: false,
+    }
+}
+
 async fn coze_ai_write_article(say: String) -> Option<(String, String)> {
     //这个配置文件还要分割出去
-    let coze_config = reptile::CozeConfig {
-        api_url: "https://api.coze.com/open_api/v2/chat".to_string(),
-        api_key: "pat_1ACJqMzr4mMFGNJ5Mdlq5smyggnnSgp5x8LCqaYq4NbGCvHnO0ABrsMXZa3UQatY".to_string(),
-        conversation_id: "123".to_string(), //示例中默认为123
-        bot_id: "7356134116951867400".to_string(), //机器模型的ID：7356134116951867400
-        stream: false,
-    };
+    let coze_config = get_coze_config();
 
     let response = reptile::coze(say, "123".to_string(), &coze_config).await;
     // println!("{:#?}", response);
@@ -117,10 +159,7 @@ async fn coze_ai_write_article(say: String) -> Option<(String, String)> {
     match title_option {
         Some(o_title) => {
             // let k = title_option.expect("处理文章标题时出错");
-            original_title = o_title
-                .replace(":", "")
-                .replace("：", "")
-                .to_string();
+            original_title = o_title.replace(":", "").replace("：", "").to_string();
         }
         None => {
             // 处理返回AI多余的话
