@@ -29,6 +29,8 @@ pub async fn backstage() -> Result<impl Reply, Rejection> {
     for coze_data in list.iter() {
         // 请求接口，生成文章，再更改数据保存文章
         let say = format!("生成“{}”文章", coze_data.title);
+        log::warn!("准备生成文章：{}", say);
+
         let mut new_article: Option<(String, String)> = None;
         new_article = coze_ai_write_article(say.clone()).await;
         let (title, content) = new_article.unwrap();
@@ -165,6 +167,7 @@ async fn coze_ai_write_article(say: String) -> Option<(String, String)> {
         title_and_content = messages.content.split("📘").collect();
         if title_and_content.len() != 2 {
             log::error!("原始分割符📚和📘都不对真是的,那就是AI没有去生成，而是反问了");
+            log::error!("返回的内容：{:#?}", title_and_content);
         }
     }
     //去除标题前后的空格
