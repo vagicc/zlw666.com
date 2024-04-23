@@ -8,6 +8,10 @@ SEO百度资源：https://ziyuan.baidu.com/
 
 运行项目前，请先把“env”文件改为“.env”并查看里面的配置对应本机配置
 
+后台命令：  nohup ./target/release/zlw666-com >> run.txt &
+找到后台命令：ps -ef|grep zlw666-com
+
+
 linux版本推荐：https://parrotsec.org/
 中文文档：https://parrotsec-cn.org/t/topic/30
 Parrot（前身为 Parrot Security OS）是一个基于 Debian 的、面向安全的 Linux 发行版，具有一系列专为渗透测试、计算机取证、逆向工程、黑客攻击、隐私、匿名和加密而设计的实用程序。 1月24日，Parrot 6.0 正式发布。
