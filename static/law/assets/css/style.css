@@ -7303,7 +7303,8 @@ del {
 
 .ordered-list li span {
     font-weight: 300;
-    color: #828bb2
+    /* color: #828bb2; */
+    color: #FF6F00
 }
 
 .ordered-list-alpha li {
