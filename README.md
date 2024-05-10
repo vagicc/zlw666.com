@@ -12,6 +12,10 @@ SEO百度资源：https://ziyuan.baidu.com/
 找到后台命令：ps -ef|grep zlw666-com
 
 
+# 正确的Rust机器学习框架：Candle、Burn、DFDX，还是tch-rs？: https://mp.weixin.qq.com/s/NT9QEq226B-w9ErgrG-CIg
+Burn应该为更好的选择
+# 酷美网盘：https://www.kumeiwp.com/  免费音乐
+
 linux版本推荐：https://parrotsec.org/
 中文文档：https://parrotsec-cn.org/t/topic/30
 Parrot（前身为 Parrot Security OS）是一个基于 Debian 的、面向安全的 Linux 发行版，具有一系列专为渗透测试、计算机取证、逆向工程、黑客攻击、隐私、匿名和加密而设计的实用程序。 1月24日，Parrot 6.0 正式发布。
