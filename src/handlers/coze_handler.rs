@@ -47,12 +47,35 @@ pub async fn backstage() -> Result<impl Reply, Rejection> {
             created_at: coze_data.created_at,
             generated_at: Some(now_date_time),
             description: Some(description),
+            seo_title: None,
+            seo_keywords: None,
+            seo_description: None,
             is_published: Some(false),
         };
         coze_batch_batchtitle_m::modify(coze_data.id, &new_data);
     }
 
     let html = "后台把关键都发送去生成文章";
+    Ok(warp::reply::html(html)) //直接返回html
+}
+
+pub async fn new_title(title: String) -> Result<impl Reply, Rejection> {
+    log::info!("要生成的文章标题：{}", title);
+    //解码URL的中文
+    let title: String = url::form_urlencoded::parse(title.as_bytes())
+        .map(|(key, _)| key.into_owned())
+        .collect();
+    log::info!("解码的文章标题：{}", title);
+
+    let html = format!(
+        "这里是请求<扣子：www.coze.com >
+    <br><Hr>
+    标题：{}
+    <br><Hr>
+    
+    ",
+        title,
+    );
     Ok(warp::reply::html(html)) //直接返回html
 }
 
@@ -98,6 +121,9 @@ pub async fn title(title: String) -> Result<impl Reply, Rejection> {
         created_at: created_time,
         generated_at: Some(now_date_time),
         description: None,
+        seo_title: None,
+        seo_keywords: None,
+        seo_description: None,
         is_published: Some(false),
     };
 
@@ -152,6 +178,9 @@ async fn coze_ai_write_article(say: String) -> Option<(String, String)> {
                 created_at: crate::common::now_naive_date_time(),
                 generated_at: None,
                 description: None,
+                seo_title: None,
+                seo_keywords: None,
+                seo_description: None,
                 is_published: None,
             };
             new_data.insert();

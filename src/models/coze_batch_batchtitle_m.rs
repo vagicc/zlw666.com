@@ -12,10 +12,13 @@ pub struct CozeBatchBatchtitle {
     pub id: i64,
     pub title: String,
     pub content: Option<String>,
-    pub is_done: Option<bool>,
+    pub is_done: Option<bool>,  
     pub created_at: NaiveDateTime,
     pub generated_at: Option<NaiveDateTime>,
     pub description: Option<String>,
+    pub seo_title: Option<String>,
+    pub seo_keywords: Option<String>,
+    pub seo_description: Option<String>,
     pub is_published: Option<bool>,
 }
 
@@ -28,6 +31,9 @@ pub struct NewCozeBatchBatchtitle {
     pub created_at: NaiveDateTime,
     pub generated_at: Option<NaiveDateTime>,
     pub description: Option<String>,
+    pub seo_title: Option<String>,
+    pub seo_keywords: Option<String>,
+    pub seo_description: Option<String>,
     pub is_published: Option<bool>,
 }
 

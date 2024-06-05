@@ -107,6 +107,12 @@ diesel::table! {
         generated_at -> Nullable<Datetime>,
         #[max_length = 300]
         description -> Nullable<Varchar>,
+        #[max_length = 255]
+        seo_title -> Nullable<Varchar>,
+        #[max_length = 255]
+        seo_keywords -> Nullable<Varchar>,
+        #[max_length = 300]
+        seo_description -> Nullable<Varchar>,
         is_published -> Nullable<Bool>,
     }
 }
