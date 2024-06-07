@@ -22,6 +22,8 @@ pub fn all_routes(
 
     let sue = sue_route::index();
     let coze = coze_route::index();
+    let kimi = crate::routes::kimi_route::index();
+    let reptile = crate::routes::reptile_route::new();
 
     let routes = home
         .or(favicon)
@@ -30,6 +32,8 @@ pub fn all_routes(
         .or(hello)
         .or(demo)
         .or(sue)
-        .or(coze);
+        .or(reptile)
+        .or(coze)
+        .or(kimi);
     routes
 }

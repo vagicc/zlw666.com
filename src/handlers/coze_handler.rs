@@ -1,5 +1,3 @@
-use std::fmt::format;
-
 use crate::models::coze_batch_batchtitle_m;
 use crate::reptile;
 use handlebars::{to_json, Handlebars};
@@ -19,6 +17,7 @@ pub async fn test_rand_image() -> Result<impl Reply, Rejection> {
     Ok(warp::reply::html(new)) //直接返回html
 }
 
+//后台生成文章
 pub async fn backstage() -> Result<impl Reply, Rejection> {
     let (_, list, _) = coze_batch_batchtitle_m::no_done_list(None, None);
 

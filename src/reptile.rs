@@ -2,8 +2,82 @@ use reqwest::header::{HeaderValue, ACCEPT, AUTHORIZATION, CONNECTION, CONTENT_TY
 use serde_derive::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
-//爬虫请求全部集中到此处
 
+//爬虫请求全部集中到此处
+#[derive(Debug, Clone)]
+pub struct KimiConfig {
+    pub api_url: String, //https://api.moonshot.cn/v1/chat/completions
+    pub api_key: String, //AZ9urbKaN3Er9xWqdiEeIpM0UUjVGor4BU3GdZFKnTOiTjQk
+    // 使用什么采样温度，介于 0 和 1 之间。较高的值（如 0.7）将使输出更加随机，而较低的值（如 0.2）将使其更加集中和确定性
+    // pub temperature: f32, //默认为 0，如果设置，值域须为 [0, 1] 我们推荐 0.3，以达到较合适的效果
+    pub stream: bool, //是否启用流式返回
+}
+
+#[derive(serde::Serialize)]
+pub struct KimiPostData {
+    pub model: String,
+    pub messages: Vec<Message>,
+    pub stream: bool,
+    // 使用什么采样温度，介于 0 和 1 之间。较高的值（如 0.7）将使输出更加随机，而较低的值（如 0.2）将使其更加集中和确定性
+    pub temperature: f32, //默认为 0，如果设置，值域须为 [0, 1] 我们推荐 0.3，以达到较合适的效果
+}
+
+#[derive(serde::Serialize)]
+pub struct Message {
+    pub role: String,
+    pub content: String,
+}
+
+//kimi接口文档：https://platform.moonshot.cn/docs/api/chat#基本信息
+pub async fn kimi(
+    chat: String,
+    config: &KimiConfig,
+) -> crate::json_value::kimi_response_json::KimiResponse {
+    // 定义请求体数据
+    let request_body = KimiPostData {
+        model: "moonshot-v1-8k".to_string(),
+        messages: vec![
+            Message {
+                role: "system".to_string(),
+                content: "你是 Kimi，由 Moonshot AI 提供的人工智能助手，你更擅长中文和英文的对话。你会为用户提供安全，有帮助，准确的回答。同时，你会拒绝一切涉及恐怖主义，种族歧视，黄色暴力等问题的回答。Moonshot AI 为专有名词，不可翻译成其他语言。".to_string(),
+            },
+            Message {
+                role: "user".to_string(),
+                content: chat,
+            },
+        ],
+        stream: false,
+        temperature: 0.3,
+    };
+
+    let client = reqwest::Client::new();
+    let response = client
+        .post(&config.api_url)
+        .json(&request_body)
+        .bearer_auth(&config.api_key)
+        .header("Content-Type", "application/json")
+        .send()
+        .await
+        .expect("请求kimi AI接口出错");
+
+    // 处理响应
+    if !response.status().is_success() {
+        log::error!(
+            "请求接口返回状态出错Request failed with status: {}",
+            response.status()
+        );
+    }
+
+    let messages = response
+        .json::<crate::json_value::kimi_response_json::KimiResponse>()
+        .await
+        .expect("kimiAI接口返回来数据转为JSON出错");
+
+    log::debug!("接收到的返回消息：{:#?}", messages);
+    messages
+}
+
+//coze.com
 #[derive(Debug, Clone)]
 pub struct CozeConfig {
     pub api_url: String, //https://api.coze.com/open_api/v2/chat
@@ -81,13 +155,8 @@ pub async fn coze(
     messages
 }
 
-
 //官方文档：https://www.coze.com/open/docs/chat?_lang=zh
-pub async fn coze_test(
-    say: String,
-    user: String,
-    config: &CozeConfig,
-)  {
+pub async fn coze_test(say: String, user: String, config: &CozeConfig) {
     // 创建一个 HeaderMap 来存储请求头
     let mut headers = reqwest::header::HeaderMap::new();
     headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
@@ -137,10 +206,8 @@ pub async fn coze_test(
         .await
         .expect("接口返回来数据转为JSON出错");
     println!("成功");
-    println!("{:#?}",messages);
+    println!("{:#?}", messages);
     println!("请求完成");
-
-   
 }
 //这里还要有其它的参数
 pub async fn _coze_old(say: &str, stream: bool, config: CozeConfig) {
