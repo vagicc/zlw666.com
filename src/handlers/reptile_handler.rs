@@ -30,6 +30,7 @@ impl NewPost {
     }
 }
 
+//响应post /reptile/66law/new
 //华侓 精选解答: https://v.66law.cn/jx/
 //百度律临 -最新问答： https://lvlin.baidu.com/pc/qa-999-2.html
 pub async fn new(form: NewPost) -> std::result::Result<impl Reply, Rejection> {
