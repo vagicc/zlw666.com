@@ -1,7 +1,7 @@
-use handlebars::{to_json, Handlebars};
-use warp::{Rejection, Reply};
 use crate::template::to_html_base;
+use handlebars::to_json;
 use serde_json::value::Map;
+use warp::{Rejection, Reply};
 
 // type ResultWarp<T> = std::result::Result<T, Rejection>;
 
@@ -19,7 +19,10 @@ use serde_json::value::Map;
 pub async fn index() -> std::result::Result<impl Reply, Rejection> {
     let mut data = Map::new();
 
-    data.insert("seo_title".to_string(), to_json("深圳律师-深圳律师事务所-刑事辩护律师-离婚律师咨询-法议网"));
+    data.insert(
+        "seo_title".to_string(),
+        to_json("深圳律师-深圳律师事务所-刑事辩护律师-离婚律师咨询-法议网"),
+    );
     data.insert(
         "seo_keyword".to_string(),
         to_json("深圳律师事务所,律师,深圳律师,律师事务所,刑事辩护律师,离婚律师,离婚律师咨询,法律咨询,婚姻律师,请律师大概要多少钱"),
@@ -40,7 +43,10 @@ pub async fn index() -> std::result::Result<impl Reply, Rejection> {
 pub async fn lawfirm() -> std::result::Result<impl Reply, Rejection> {
     let mut data = Map::new();
 
-    data.insert("seo_title".to_string(), to_json("深圳律师-深圳律师事务所-刑事辩护律师-离婚律师咨询-法议网"));
+    data.insert(
+        "seo_title".to_string(),
+        to_json("深圳律师-深圳律师事务所-刑事辩护律师-离婚律师咨询-法议网"),
+    );
     data.insert(
         "seo_keyword".to_string(),
         to_json("深圳律师事务所,律师,深圳律师,律师事务所,刑事辩护律师,离婚律师,离婚律师咨询,法律咨询,婚姻律师,请律师大概要多少钱"),

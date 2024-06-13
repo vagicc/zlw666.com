@@ -37,20 +37,57 @@ impl NewQAQuestions {
         //开启事务(原因是mysql无法用get_result)，只能这样子取到插入ID
         let last_insert_id = connection
             .transaction::<i32, diesel::result::Error, _>(|conn| {
-                diesel::insert_into(qa_questions)
-                    .values(self)
-                    .execute(conn)
-                    .expect("qa_questions表插入数据出错");
+                let result = diesel::insert_into(qa_questions).values(self).execute(conn);
+                // .expect("qa_questions表插入数据出错");
+
+                let last_insert_id = match result {
+                    Ok(row) => {
+                        let last_insert_id = qa_questions
+                            .order(id.desc())
+                            .select(id)
+                            .first::<i32>(conn)
+                            .expect("查询最新插入ID出错");
+                        last_insert_id
+                    }
+                    Err(e) => {
+                        log::error!("插入数据出错：{:#?}", e);
+                        /* 
+                        插入数据出错：DatabaseError(
+                            UniqueViolation,
+                            "Duplicate entry '生产销售有毒有害食品罪' for key 'title'",
+                        ) */
+                        0
+                    }
+                };
 
                 //查询最新的数据
-                let last_insert_id = qa_questions
-                    .order(id.desc())
-                    .select(id)
-                    .first::<i32>(conn)
-                    .expect("查询最新插入ID出错");
+                // let last_insert_id = qa_questions
+                //     .order(id.desc())
+                //     .select(id)
+                //     .first::<i32>(conn)
+                //     .expect("查询最新插入ID出错");
                 Ok(last_insert_id)
             })
             .expect("事务执行失败");
         last_insert_id
+    }
+}
+
+pub fn find_questions(pky: i32) -> Option<QAQuestions> {
+    let query = qa_questions.find(pky);
+
+    log::debug!(
+        "find_questions查询SQL:{:?}",
+        diesel::debug_query::<diesel::mysql::Mysql, _>(&query).to_string()
+    );
+
+    let mut connection = get_connection();
+    let result = query.first::<QAQuestions>(&mut connection);
+    match result {
+        Ok(row) => Some(row),
+        Err(err) => {
+            log::debug!("find_questions查无数据：{}", err);
+            None
+        }
     }
 }

@@ -30,6 +30,72 @@ impl NewPost {
     }
 }
 
+//只抓取“华律”问答
+pub async fn qa_66law() -> std::result::Result<impl Reply, Rejection> {
+    //华侓 精选解答: https://v.66law.cn/jx/
+    let url = "https://v.66law.cn/jx/";
+    let result = crate::http::http_request(url).await;
+    let response = result.unwrap();
+    // println!("response: {:?}", response);
+    let html = response.html.as_str();
+    // println!("抓取到的html=========={}", html);
+    let data = crate::parse::hualv_select(html).await;
+    log::info!("所有抓到的提问标题：{:#?}", data);
+
+    for title in data.title {
+        if title.is_empty() {
+            continue;
+        }
+
+        //插入到表
+        let new_data = crate::models::qa_questions_m::NewQAQuestions {
+            title: title,
+            content: None,
+            user_id: 0,
+            user_name: Some("华律精选".to_string()),
+            category_id: None,
+            is_show: Some(false),
+            created_at: None,
+        };
+        let insert_id = new_data.insert();
+    }
+
+    let html = "成功".to_string();
+    Ok(warp::reply::html(html)) //直接返回html
+}
+
+pub async fn qa_lvlin_baidu() -> std::result::Result<impl Reply, Rejection> {
+    let url = "https://lvlin.baidu.com/pc/qa-999-2.html";
+    let result = crate::http::http_request(url).await;
+    let response = result.unwrap();
+    // println!("response: {:?}", response);
+    let html = response.html.as_str();
+    // println!("抓取到的html=========={}", html);
+    let data = crate::parse::lvlin_baidu_select(html).await;
+    log::info!("所有抓到的提问标题：{:#?}", data);
+
+    for title in data.title {
+        if title.is_empty() {
+            continue;
+        }
+
+        //插入到表
+        let new_data = crate::models::qa_questions_m::NewQAQuestions {
+            title: title,
+            content: None,
+            user_id: 0,
+            user_name: Some("百度律临".to_string()),
+            category_id: None,
+            is_show: Some(false),
+            created_at: None,
+        };
+        let insert_id = new_data.insert();
+    }
+
+    let html = "成功".to_string();
+    Ok(warp::reply::html(html)) //直接返回html
+}
+
 //响应post /reptile/66law/new
 //华侓 精选解答: https://v.66law.cn/jx/
 //百度律临 -最新问答： https://lvlin.baidu.com/pc/qa-999-2.html
@@ -75,5 +141,3 @@ pub async fn new(form: NewPost) -> std::result::Result<impl Reply, Rejection> {
 
     Ok(warp::reply::html(html))
 }
-
-

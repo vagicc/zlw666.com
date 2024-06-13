@@ -1,7 +1,7 @@
 -- Your SQL goes here
 CREATE TABLE `qa_questions` (
   `id` INT AUTO_INCREMENT PRIMARY KEY COMMENT '主键ID',
-  `title` VARCHAR(255) NOT NULL COMMENT '问题标题',
+  `title` VARCHAR(255) NOT NULL UNIQUE COMMENT '问题标题',
   `content` TEXT DEFAULT NULL COMMENT '问题详细描述',
   `user_id` INT NOT NULL DEFAULT 0 COMMENT '用户ID',
   `user_name` VARCHAR(50) DEFAULT NULL COMMENT '提问用户名',
