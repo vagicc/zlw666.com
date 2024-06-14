@@ -20,7 +20,7 @@ pub struct QAAnswers {
 
 #[derive(Debug, Clone, Insertable, AsChangeset)]
 #[table_name = "qa_answers"]
-pub struct NewQAAnswers{
+pub struct NewQAAnswers {
     pub question_id: i32,
     pub content: String,
     pub user_id: i32,
@@ -51,5 +51,23 @@ impl NewQAAnswers {
             })
             .expect("事务执行失败");
         last_insert_id
+    }
+}
+
+//取得问题的所有答案
+pub fn get_my_answers(q_id: i32) -> Option<Vec<QAAnswers>> {
+    let query = qa_answers.filter(question_id.eq(q_id)).order_by(id.desc());
+    log::debug!(
+        "get_my_answers查询SQL:{:?}",
+        diesel::debug_query::<diesel::mysql::Mysql, _>(&query).to_string()
+    );
+    let mut conn = get_connection();
+    let result = query.get_results::<QAAnswers>(&mut conn);
+    match result {
+        Ok(list) => Some(list),
+        Err(err) => {
+            log::debug!("get_my_answers查无数据：{}", err);
+            None
+        }
     }
 }

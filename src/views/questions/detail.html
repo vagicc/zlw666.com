@@ -1,0 +1,80 @@
+{{#*inline "child"}}
+<main>
+    <div class="slider-area">
+        <!-- <div class="slider-height2 exsl59bgt d-flex align-items-center"></div> -->
+        <div class="slider-bgmy hero-overly02 d-flex align-items-center">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xl-5 col-lg-6 col-md-8">
+                        <div class="hero-caption hero-caption2">
+                            <h2>法律问答专区</h2>
+                            <p>解答：{{questions.title}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="blog_area single-post-area section-padding">
+        <div class="container">
+            <div class="row">
+
+                <div class="col-md-8">
+                    <!-- 单个问题 -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">{{questions.title}}</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">{{questions.content}}</p>
+                        </div>
+                        <div class="card-footer text-muted">
+                            提问时间：{{questions.created_at}}
+                        </div>
+                    </div>
+                    <!-- 回答列表 -->
+                    <div class="list-group">
+                        {{#if list}}
+                        {{#each list}}
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">回答标题</h5>
+                                <small>{{user_name}}</small>
+                            </div>
+                            <p class="mb-1">{{content}}</p>
+                            <small>{{updated_at}}</small>
+                        </a>
+                        {{/each}}
+                        {{else}}
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">暂无律师解答</h5>
+                            </div>
+                        </a>
+                        {{/if}}
+                        
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <!-- 侧边栏，可以包含热门问题、用户推荐等 -->
+                    <div class="card">
+                        <div class="card-header">
+                            热门问题
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">热门问题1</li>
+                            <li class="list-group-item">热门问题2</li>
+                            <!-- 更多热门问题 -->
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+</main>
+
+
+{{/inline}}
+{{> (lookup this "parent")}}
