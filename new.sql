@@ -1,7 +1,7 @@
 -- 问答表
 CREATE TABLE `qa_questions` (
   `id` INT AUTO_INCREMENT PRIMARY KEY COMMENT '主键ID',
-  `title` VARCHAR(255) NOT NULL COMMENT '问题标题',
+  `title` VARCHAR(255) NOT NULL UNIQUE COMMENT '问题标题',
   `content` TEXT DEFAULT NULL COMMENT '问题详细描述',
   `user_id` INT NOT NULL DEFAULT 0 COMMENT '用户ID',
   `category_id` INT DEFAULT 0 COMMENT '问题分类ID',

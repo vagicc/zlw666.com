@@ -2,11 +2,21 @@ use crate::template::to_html_base;
 use handlebars::to_json;
 use serde_json::value::Map;
 use warp::{Rejection, Reply};
+use crate::models::qa_questions_m;
 
 // 问答专区
 // 响应GET： /questions/list/{}
-pub async fn list() -> std::result::Result<impl Reply, Rejection> {
+pub async fn list(page: u32,) -> std::result::Result<impl Reply, Rejection> {
+    
+    let (count, list, pages) = qa_questions_m::list_page(
+        Some(page),
+        Some(crate::constants::PER_PAGE),
+    );
+
     let mut data = Map::new();
+    data.insert("list_len".to_string(), to_json(count)); //
+    data.insert("list".to_string(), to_json(list)); //
+    data.insert("pages".to_string(), to_json(pages));
 
     data.insert(
         "seo_title".to_string(),

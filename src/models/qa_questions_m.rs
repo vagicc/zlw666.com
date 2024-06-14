@@ -51,7 +51,7 @@ impl NewQAQuestions {
                     }
                     Err(e) => {
                         log::error!("插入数据出错：{:#?}", e);
-                        /* 
+                        /*
                         插入数据出错：DatabaseError(
                             UniqueViolation,
                             "Duplicate entry '生产销售有毒有害食品罪' for key 'title'",
@@ -90,4 +90,55 @@ pub fn find_questions(pky: i32) -> Option<QAQuestions> {
             None
         }
     }
+}
+
+/// 取得列表数据
+/// page: Option<u32>  第几页
+/// per: Option<u32>   每页多少条数据,默认为50
+/// 返回（总条数：i64,数据数组，分页html)
+pub fn list_page(page: Option<u32>, per: Option<u32>) -> (i64, Vec<QAQuestions>, String) {
+    let mut limit: i64 = 50; //每页取几条数据
+    let mut offset: i64 = 0; //从第0条开始
+
+    if !per.is_none() {
+        limit = per.unwrap() as i64;
+    }
+
+    if !page.is_none() && page.unwrap() > 1 {
+        offset = ((page.unwrap() as i64) - 1) * limit;
+    }
+
+    let query_count = qa_questions.filter(is_show.eq(true)).count();
+    log::error!(
+        "分页数量查询SQL：{:#?}",
+        diesel::debug_query::<diesel::mysql::Mysql, _>(&query_count).to_string()
+    );
+    let mut conn = get_connection();
+    let count: i64 = query_count
+        .get_result(&mut conn)
+        .expect("qa_questions分页数量查询出错"); //查询总条数
+    let mut pages = String::new();
+    let data_null: Vec<QAQuestions> = Vec::new();
+    if count <= 0 {
+        // return (count, data_null, pages);
+    }
+    let query = qa_questions
+        .filter(is_show.eq(true))
+        .order_by(id.desc())
+        .limit(limit)
+        .offset(offset);
+    log::error!(
+        "分页查询SQL：{:#?}",
+        diesel::debug_query::<diesel::mysql::Mysql, _>(&query).to_string()
+    );
+
+    let list = query
+        .get_results::<QAQuestions>(&mut conn)
+        .unwrap_or(data_null);
+
+    println!("{:?}", list);
+    pages = crate::pager::default("questions/list", count, page.unwrap_or(1), limit as u32);
+
+    // pages="";  这里做分页HTML
+    (count, list, pages)
 }

@@ -17,6 +17,14 @@
         proxy_pass http://127.0.0.1:5898/lawyer;
     }
 ```
+    location /questions/list/ {
+        rewrite ^/questions/list/(.*)$ /questions/list/$1 break;
+        proxy_pass http://127.0.0.1:5898; # 转发到后端服务
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
 
 # 正则表达式匹配 URL
 ` 
